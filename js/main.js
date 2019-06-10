@@ -8,7 +8,7 @@ function plot() {
     intRate = parseFloat(document.getElementById("interestRateInput").value);
 
     Highcharts.chart('chart-container', {
-
+        exporting: { enabled: false },
         title: {
         text: 'Пример работы IRS'
         },

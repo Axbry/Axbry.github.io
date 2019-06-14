@@ -245,16 +245,25 @@
       function plot() {
 
           $.getJSON(
-              './interest.json',
+              'https://axbry.github.io/interest.json',
               function(data) {
                   intRate = parseFloat(document.getElementById("interestRateInput").value);
 
                   Highcharts.chart('chart-container', {
                       exporting: { enabled: false },
-                      title: {
-                      text: 'Пример работы IRS'
+                      chart: {
+                        zoomType: 'x'
                       },
-                  
+                      title: {
+                        text: 'Пример работы IRS'
+                      },
+                      subtitle: {
+                        text: document.ontouchstart === undefined ?
+                          'Выделите область для приближения' : 'Приблизьте при необходимости'
+                      }, 
+                      xAxis: {
+                        type: 'datetime'
+                      },                                       
                       yAxis: {
                           title: {
                               text: 'Значение вашей ставки'
@@ -265,26 +274,27 @@
                           align: 'center',
                           verticalAlign: 'bottom'
                       },
-                  
+/*                  
                       plotOptions: {
                       series: {
-                          label: {
-                          connectorAllowed: false
+                            label: {
+                            connectorAllowed: false
                           },
                           pointStart: 2010
-                      }
+                        }
                       },
-                  
+*/                  
+
                       series: [{
-                          name: 'Ваша текущая ставка',
-                          data: [intRate, intRate, intRate, intRate, intRate, intRate, intRate, intRate],
+                          name: 'KC',
+                          data: data.KC,
                           color: 'red'
                       }, {
-                          name: 'Ваша ставка с инструментом IRS',
-                          data: [randomMinMax(intRate * 0.5, intRate * 1.15), randomMinMax(intRate * 0.5, intRate * 1.15), randomMinMax(intRate * 0.5, intRate * 1.15), randomMinMax(intRate * 0.5, intRate * 1.15), randomMinMax(intRate * 0.5, intRate * 1.15), randomMinMax(intRate * 0.5, intRate * 1.15), randomMinMax(intRate * 0.5, intRate * 1.15), randomMinMax(intRate * 0.5, intRate * 1.15)],
+                          name: 'MosPrime 1 day',
+                          data: data.MosPrime_1d,
                           color: 'green'
                       }],
-                  
+
                       responsive: {
                           rules: [{
                               condition: {

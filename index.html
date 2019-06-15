@@ -207,17 +207,28 @@
       <p></p>
       <hr />
       <form>
-        <div class="row">
-          <div class="col-12 col-md-4">
-            <label>Текущее значение Вашей ставки</label>
-          </div>
-          <div class="col-12 col-md-4">
-            <input id="interestRateInput" value="10">
-          </div>
-          <div class="col-12 col-md-4">
-            <input type="button" onclick="plot()" value="Расчитать"></input>
-          </div>
-        </div>
+        <div class="form-group">
+			<div class="form-row">
+				<div class="form-group col-md-6">
+					<label for="interestRateInput">Текущее значение Вашей ставки:</label>
+					<input type="text" class="form-control" id="interestRateInput" value="17.3"></input>
+				</div>
+				<div class="form-group col-md-6">
+					<label for="globalMarketTool">Инструмент для сравнения:</label>
+					<select class="form-control" id="globalMarketTool">
+						<option selected>MosPrime 1 день</option>
+						<option>MosPrime 1 неделя</option>
+						<option>MosPrime 2 недели</option>
+						<option>MosPrime 1 месяц</option>
+						<option>MosPrime 2 месяца</option>
+						<option>MosPrime 3 месяца</option>
+						<option>MosPrime 6 месяцев</option>
+						<option>KC</option>
+					</select>
+				</div>
+			</div>
+        </div>  
+		<input type="button" onclick="plot()" value="Расчитать"></input>
       </form>
       <div id="chart-container"></div>
       <hr />
@@ -237,25 +248,58 @@
     <script src="https://code.highcharts.com/modules/export-data.js"></script>
     
     <script>
-      function randomMinMax(min, max) {
+		function randomMinMax(min, max) {
           var rand = min + Math.random() * (max - min);
           return rand;
         }
 
-      function plot() {
+		function fillArray(value, gmArray) {
+			var res = [];
+
+			for(var i = 0; i < gmArray.length; i++) {
+				res = res.concat([[gmArray[i][0], value]]);
+				// alert(res);
+			}
+
+			return res;
+		}
+		
+		function plot() {
 
           $.getJSON(
               'https://axbry.github.io/interest.json',
               function(data) {
-                  intRate = parseFloat(document.getElementById("interestRateInput").value);
+                  var gmtoolRate = null;
+				  var selectedTool = $("select#globalMarketTool").children("option:selected").val();
 
+				  if(selectedTool === "MosPrime 1 день")
+					gmtoolRate = data.MosPrime_1d;
+				  if(selectedTool === "MosPrime 1 неделя")
+					gmtoolRate = data.MosPrime_1w;
+				  if(selectedTool === "MosPrime 2 недели")
+					gmtoolRate = data.MosPrime_2w;
+				  if(selectedTool === "MosPrime 1 месяц")
+					gmtoolRate = data.MosPrime_1m;
+				  if(selectedTool === "MosPrime 2 месяца")
+					gmtoolRate = data.MosPrime_2m;
+				  if(selectedTool === "MosPrime 3 месяца")
+					gmtoolRate = data.MosPrime_3m;
+				  if(selectedTool === "MosPrime 6 месяцев")
+					gmtoolRate = data.MosPrime_6m;
+				  if(selectedTool === "KC")
+					gmtoolRate = data.KC;
+					
+				  var userIntRates = fillArray(
+					parseFloat(document.getElementById("interestRateInput").value), 
+					gmtoolRate);
+				  
                   Highcharts.chart('chart-container', {
                       exporting: { enabled: false },
                       chart: {
                         zoomType: 'x'
                       },
                       title: {
-                        text: 'Пример работы IRS'
+                        text: 'Сравните вашу текущую ставку с инструментами ГР'
                       },
                       subtitle: {
                         text: document.ontouchstart === undefined ?
@@ -286,12 +330,12 @@
 */                  
 
                       series: [{
-                          name: 'KC',
-                          data: data.KC,
+                          name: 'Ваша текущая ставка',
+                          data: userIntRates,
                           color: 'red'
                       }, {
-                          name: 'MosPrime 1 day',
-                          data: data.MosPrime_1d,
+                          name: 'Ставка инструмента ГР',
+                          data: gmtoolRate,
                           color: 'green'
                       }],
 
